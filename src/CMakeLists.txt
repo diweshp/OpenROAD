@@ -295,6 +295,7 @@ add_subdirectory(ppl)
 add_subdirectory(rmp)
 add_subdirectory(cts)
 add_subdirectory(grt)
+add_subdirectory(grt_morse)
 add_subdirectory(tap)
 add_subdirectory(mpl)
 add_subdirectory(rcx)
@@ -359,6 +360,7 @@ target_link_libraries(openroad
   rmp
   cts
   grt
+  grt_morse
   tap
   gui
   drt
@@ -432,6 +434,7 @@ if (Python3_FOUND AND BUILD_PYTHON)
     utl_py
     ant_py
     grt_py
+    grt_morse_py
     gpl_py
     dpl_py
     mpl_py
