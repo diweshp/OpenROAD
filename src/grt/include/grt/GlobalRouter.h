@@ -88,6 +88,7 @@ class dbNetwork;
 
 namespace grt {
 
+class FastRouteCore;
 class MorseRoute;
 class RepairAntennas;
 class Grid;
@@ -200,6 +201,7 @@ class GlobalRouter : public ant::GlobalRouteSource
   bool isConnected(odb::dbNet* net);
   bool segmentsConnect(const GSegment& segment1, const GSegment& segment2);
   bool isCoveringPin(Net* net, GSegment& segment);
+  std::vector<Net*> initFastRoute(int min_routing_layer, int max_routing_layer);
   std::vector<Net*> initMorseRoute(int min_routing_layer, int max_routing_layer);
   void initFastRouteIncr(std::vector<Net*>& nets);
   void estimateRC(rsz::SpefWriter* spef_writer = nullptr);
@@ -322,7 +324,8 @@ class GlobalRouter : public ant::GlobalRouteSource
   AbstractGrouteRenderer* getRenderer();
 
   odb::dbDatabase* db() const { return db_; }
-  MorseRoute morseroute() const { return morseroute_; }
+  FastRouteCore* fastroute() const { return fastroute_; }
+  MorseRoute* morseroute() const { return morseroute_; }
   Rudy* getRudy();
 
  private:
@@ -484,6 +487,7 @@ class GlobalRouter : public ant::GlobalRouteSource
   dpl::Opendp* opendp_;
   rsz::Resizer* resizer_;
   // Objects variables
+  FastRouteCore* fastroute_;
   MorseRoute* morseroute_;
   odb::Point grid_origin_;
   std::unique_ptr<AbstractGrouteRenderer> groute_renderer_;
