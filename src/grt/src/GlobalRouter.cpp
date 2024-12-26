@@ -53,7 +53,7 @@
 #include "AbstractFastRouteRenderer.h"
 #include "AbstractGrouteRenderer.h"
 #include "AbstractRoutingCongestionDataSource.h"
-#include "FastRoute.h"
+#include "MorseRoute.h"
 #include "Grid.h"
 #include "MakeWireParasitics.h"
 #include "RepairAntennas.h"
@@ -86,7 +86,7 @@ GlobalRouter::GlobalRouter()
       antenna_checker_(nullptr),
       opendp_(nullptr),
       resizer_(nullptr),
-      fastroute_(nullptr),
+      morseroute_(nullptr),
       grid_origin_(0, 0),
       groute_renderer_(nullptr),
       grid_(new Grid),
@@ -131,7 +131,7 @@ void GlobalRouter::init(utl::Logger* logger,
   stt_builder_ = stt_builder;
   antenna_checker_ = antenna_checker;
   opendp_ = opendp;
-  fastroute_ = new FastRouteCore(db_, logger_, stt_builder_);
+  morseroute_ = new MorseRoute(db_);
   sta_ = sta;
   resizer_ = resizer;
 
@@ -151,7 +151,7 @@ void GlobalRouter::clear()
   routing_tracks_.clear();
   routing_layers_.clear();
   grid_->clear();
-  fastroute_->clear();
+  //fastroute_->clear();
   vertical_capacities_.clear();
   horizontal_capacities_.clear();
   initialized_ = false;
@@ -159,7 +159,7 @@ void GlobalRouter::clear()
 
 GlobalRouter::~GlobalRouter()
 {
-  delete fastroute_;
+  delete morseroute_;
   delete grid_;
   for (auto [ignored, net] : db_net_map_) {
     delete net;
@@ -167,26 +167,38 @@ GlobalRouter::~GlobalRouter()
   delete repair_antennas_;
 }
 
-std::vector<Net*> GlobalRouter::initFastRoute(int min_routing_layer,
+std::vector<Net*> GlobalRouter::initMorseRoute(int min_routing_layer,
                                               int max_routing_layer)
 {
-  fastroute_->clear();
+  morseroute_->clear();
   ensureLayerForGuideDimension(max_routing_layer);
 
-  configFastRoute();
+  //configFastRoute();
+  // TODO: implement this
+  configMorseRoute();
 
   initRoutingLayers(min_routing_layer, max_routing_layer);
   reportLayerSettings(min_routing_layer, max_routing_layer);
   initRoutingTracks(max_routing_layer);
-  initCoreGrid(max_routing_layer);
-  setCapacities(min_routing_layer, max_routing_layer);
+  //initCoreGrid(max_routing_layer);
+  // TODO: implement this
+  initCoreGridMorse(max_routing_layer);
+  //setCapacities(min_routing_layer, max_routing_layer);
+  // TODO: implement this
+  setCapacitiesMorse(min_routing_layer, max_routing_layer);
 
   std::vector<Net*> nets = findNets();
   checkPinPlacement();
-  initNetlist(nets);
+  //initNetlist(nets);
+  // TODO: implement this
+  initNetlistMorse(nets);
 
-  applyAdjustments(min_routing_layer, max_routing_layer);
-  perturbCapacities();
+  //applyAdjustments(min_routing_layer, max_routing_layer);
+  // TODO: implement this
+  //applyAdjustmentsMorse(min_routing_layer, max_routing_layer);
+  //perturbCapacities();
+  // TODO: implement this
+  //perturbCapacitiesMorse();
   initialized_ = true;
   return nets;
 }
@@ -211,6 +223,26 @@ void GlobalRouter::applyAdjustments(int min_routing_layer,
   addResourcesForPinAccess();
   fastroute_->initAuxVar();
 }
+void GlobalRouter::applyAdjustmentsMorse(int min_routing_layer,
+                                    int max_routing_layer)
+{
+  /*morseroute_->initEdges();
+  computeGridAdjustments(min_routing_layer, max_routing_layer);
+  computeTrackAdjustments(min_routing_layer, max_routing_layer);
+  computeObstructionsAdjustments();
+  std::vector<int> track_space = grid_->getTrackPitches();
+  fastroute_->initBlockedIntervals(track_space);
+  computeUserGlobalAdjustments(min_routing_layer, max_routing_layer);
+  computeUserLayerAdjustments(max_routing_layer);
+
+  for (RegionAdjustment region_adjustment : region_adjustments_) {
+    computeRegionAdjustments(region_adjustment.getRegion(),
+                             region_adjustment.getLayer(),
+                             region_adjustment.getAdjustment());
+  }
+  addResourcesForPinAccess();
+  fastroute_->initAuxVar();*/
+}
 
 // If file name is specified, save congestion report file.
 // If there are no congestions, the empty file overwrites any
@@ -219,6 +251,12 @@ void GlobalRouter::saveCongestion()
 {
   is_congested_ = fastroute_->totalOverflow() > 0;
   fastroute_->saveCongestion();
+}
+
+void GlobalRouter::saveCongestionMorse()
+{
+  /*is_congested_ = fastroute_->totalOverflow() > 0;
+  fastroute_->saveCongestion();*/
 }
 
 bool GlobalRouter::haveRoutes()
@@ -331,22 +369,29 @@ void GlobalRouter::globalRoute(bool save_guides,
         int min_layer, max_layer;
         getMinMaxLayer(min_layer, max_layer);
 
-        std::vector<Net*> nets = initFastRoute(min_layer, max_layer);
+        //std::vector<Net*> nets = initFastRoute(min_layer, max_layer);
+        // TODO: implement this
+        std::vector<Net*> nets = initMorseRoute(min_layer, max_layer);
 
         if (verbose_) {
           reportResources();
         }
 
-        routes_ = findRouting(nets, min_layer, max_layer);
+        //routes_ = findRouting(nets, min_layer, max_layer);
+        //routes_ = findRouting(nets, min_layer, max_layer);
       }
     } catch (...) {
       updateDbCongestion();
-      saveCongestion();
+      //saveCongestion();
+      // TODO: implement this
+      saveCongestionMorse();
       throw;
     }
 
     updateDbCongestion();
-    saveCongestion();
+    //saveCongestion();
+    // TODO: implement this
+      saveCongestionMorse();
 
     if (verbose_) {
       reportCongestion();
@@ -377,10 +422,10 @@ void GlobalRouter::globalRoute(bool save_guides,
 
 void GlobalRouter::updateDbCongestion()
 {
-  int min_layer, max_layer;
+  /*int min_layer, max_layer;
   getMinMaxLayer(min_layer, max_layer);
   fastroute_->updateDbCongestion(min_layer, max_layer);
-  heatmap_->update();
+  heatmap_->update();*/
 }
 
 int GlobalRouter::repairAntennas(odb::dbMTerm* diode_mterm,
@@ -585,6 +630,26 @@ void GlobalRouter::initCoreGrid(int max_routing_layer)
     fastroute_->addLayerDirection(l - 1, tech_layer->getDirection());
   }
 }
+void GlobalRouter::initCoreGridMorse(int max_routing_layer)
+{
+  initGrid(max_routing_layer);
+
+  computeCapacities(max_routing_layer);
+  findTrackPitches(max_routing_layer);
+
+  morseroute_->setLowerLeft(grid_->getXMin(), grid_->getYMin());
+  morseroute_->setTileSize(grid_->getTileSize());
+  morseroute_->setGridsAndLayers(
+      grid_->getXGrids(), grid_->getYGrids(), grid_->getNumLayers());
+  morseroute_->setGridMax(grid_->getGridArea().xMax(),
+                         grid_->getGridArea().yMax());
+
+  odb::dbTech* tech = db_->getTech();
+  for (int l = 1; l <= max_routing_layer; l++) {
+    odb::dbTechLayer* tech_layer = tech->findRoutingLayer(l);
+    morseroute_->addLayerDirection(l - 1, tech_layer->getDirection());
+  }
+}
 
 void GlobalRouter::initRoutingLayers(int min_routing_layer,
                                      int max_routing_layer)
@@ -654,6 +719,29 @@ void GlobalRouter::setCapacities(int min_routing_layer, int max_routing_layer)
       const int v_cap = grid_->getVerticalEdgesCapacities()[l - 1];
       fastroute_->addHCapacity(h_cap, l);
       fastroute_->addVCapacity(v_cap, l);
+
+      horizontal_capacities_.push_back(h_cap);
+      vertical_capacities_.push_back(v_cap);
+
+      grid_->setHorizontalCapacity(h_cap * 100, l - 1);
+      grid_->setVerticalCapacity(v_cap * 100, l - 1);
+    }
+  }
+}
+void GlobalRouter::setCapacitiesMorse(int min_routing_layer, int max_routing_layer)
+{
+  for (int l = 1; l <= grid_->getNumLayers(); l++) {
+    if (l < min_routing_layer || l > max_routing_layer) {
+      morseroute_->addHCapacity(0, l);
+      morseroute_->addVCapacity(0, l);
+
+      horizontal_capacities_.push_back(0);
+      vertical_capacities_.push_back(0);
+    } else {
+      const int h_cap = grid_->getHorizontalEdgesCapacities()[l - 1];
+      const int v_cap = grid_->getVerticalEdgesCapacities()[l - 1];
+      morseroute_->addHCapacity(h_cap, l);
+      morseroute_->addVCapacity(v_cap, l);
 
       horizontal_capacities_.push_back(h_cap);
       vertical_capacities_.push_back(v_cap);
@@ -1072,6 +1160,45 @@ void GlobalRouter::findFastRoutePins(Net* net,
   }
 }
 
+void GlobalRouter::findMorseRoutePins(Net* net,
+                                     std::vector<RoutePt>& pins_on_grid,
+                                     int& root_idx)
+{
+  root_idx = 0;
+  const int max_routing_layer = getNetMaxRoutingLayer(net);
+
+  for (Pin& pin : net->getPins()) {
+    odb::Point pin_position = pin.getOnGridPosition();
+    int conn_layer = pin.getConnectionLayer();
+    conn_layer = std::min(conn_layer, max_routing_layer);
+
+    int pinX
+        = (int) ((pin_position.x() - grid_->getXMin()) / grid_->getTileSize());
+    int pinY
+        = (int) ((pin_position.y() - grid_->getYMin()) / grid_->getTileSize());
+
+    if (!(pinX < 0 || pinX >= grid_->getXGrids() || pinY < -1
+          || pinY >= grid_->getYGrids() || conn_layer > grid_->getNumLayers()
+          || conn_layer <= 0)) {
+      bool duplicated = false;
+      for (RoutePt& pin_pos : pins_on_grid) {
+        if (pinX == pin_pos.x() && pinY == pin_pos.y()
+            && conn_layer == pin_pos.layer()) {
+          duplicated = true;
+          break;
+        }
+      }
+
+      if (!duplicated) {
+        pins_on_grid.push_back(RoutePt(pinX, pinY, conn_layer));
+        if (pin.isDriver()) {
+          root_idx = pins_on_grid.size() - 1;
+        }
+      }
+    }
+  }
+}
+
 float GlobalRouter::getNetSlack(Net* net)
 {
   sta::dbNetwork* network = sta_->getDbNetwork();
@@ -1116,6 +1243,53 @@ void GlobalRouter::initNetlist(std::vector<Net*>& nets)
     }
   }
   fastroute_->setMaxNetDegree(max_degree);
+
+  if (verbose_) {
+    min_degree = nets.empty() ? 0 : min_degree;
+    max_degree = nets.empty() ? 0 : max_degree;
+    logger_->info(GRT, 1, "Minimum degree: {}", min_degree);
+    logger_->info(GRT, 2, "Maximum degree: {}", max_degree);
+  }
+}
+
+void GlobalRouter::initNetlistMorse(std::vector<Net*>& nets)
+{
+  pad_pins_connections_.clear();
+
+  int min_degree = std::numeric_limits<int>::max();
+  // Do NOT use numeric_limits<int>::min() to init
+  // this because if there are no FR nets the max
+  // degree will be big negative and cannot be used
+  // to init the vectors in FR.
+  int max_degree = 1;
+
+  if (nets.size() > 1 && seed_ != 0) {
+    std::mt19937 g;
+    g.seed(seed_);
+
+    utl::shuffle(nets.begin(), nets.end(), g);
+  }
+  for (Net* net : nets) {
+    int pin_count = net->getNumPins();
+    int min_layer, max_layer;
+    getNetLayerRange(net->getDbNet(), min_layer, max_layer);
+    odb::dbTechLayer* max_routing_layer
+        = db_->getTech()->findRoutingLayer(max_layer);
+    if (pin_count > 1 && !net->isLocal()
+        && (!net->hasWires() || net->hasStackedVias(max_routing_layer))) {
+      if (pin_count < min_degree) {
+        min_degree = pin_count;
+      }
+
+      if (pin_count > max_degree) {
+        max_degree = pin_count;
+      }
+      // TODO: implement this
+      makeMorserouteNet(net);
+    }
+  }
+  // TODO: implement this
+  morseroute_->setMaxNetDegree(max_degree);
 
   if (verbose_) {
     min_degree = nets.empty() ? 0 : min_degree;
@@ -1217,6 +1391,67 @@ bool GlobalRouter::makeFastrouteNet(Net* net)
         && net->getDbNet() == fastroute_->getDebugNet()) {
       saveSttInputFile(net);
     }
+    return true;
+  }
+  return false;
+}
+
+bool GlobalRouter::makeMorserouteNet(Net* net)
+{
+  std::vector<RoutePt> pins_on_grid;
+  int root_idx;
+  findMorseRoutePins(net, pins_on_grid, root_idx);
+
+  if (pins_on_grid.size() <= 1) {
+    return false;
+  }
+
+  // check if net is local in the global routing grid position
+  // the (x,y) pin positions here may be different from the original
+  // (x,y) pin positions because of findFakePinPosition function
+  bool on_grid_local = true;
+  RoutePt position = pins_on_grid[0];
+  for (RoutePt& pin_pos : pins_on_grid) {
+    if (pin_pos.x() != position.x() || pin_pos.y() != position.y()) {
+      on_grid_local = false;
+      break;
+    }
+  }
+
+  if (!on_grid_local) {
+    bool is_clock = (net->getSignalType() == odb::dbSigType::CLOCK);
+    std::vector<int>* edge_cost_per_layer;
+    int edge_cost_for_net;
+    computeTrackConsumption(net, edge_cost_for_net, edge_cost_per_layer);
+
+    // set layer restriction only to clock nets that are not connected to
+    // leaf iterms
+    int min_layer, max_layer;
+    getNetLayerRange(net->getDbNet(), min_layer, max_layer);
+
+    MorseNet* fr_net = morseroute_->addNet(net->getDbNet(),
+                                       is_clock,
+                                       root_idx,
+                                       edge_cost_for_net,
+                                       min_layer - 1,
+                                       max_layer - 1,
+                                       net->getSlack(),
+                                       edge_cost_per_layer);
+    // TODO: improve net layer range with more dynamic layer restrictions
+    // when there's no room in the specified range
+    // See https://github.com/The-OpenROAD-Project/OpenROAD/pull/2893 and
+    // https://github.com/The-OpenROAD-Project/OpenROAD/discussions/2870
+    // for a detailed discussion
+
+    for (RoutePt& pin_pos : pins_on_grid) {
+      fr_net->addPin(pin_pos.x(), pin_pos.y(), pin_pos.layer() - 1);
+    }
+
+    // Save stt input on debug file
+    /*if (morseroute_->hasSaveSttInput()
+        && net->getDbNet() == morseroute_->getDebugNet()) {
+      saveSttInputFile(net);
+    }*/
     return true;
   }
   return false;
@@ -1965,6 +2200,55 @@ void GlobalRouter::perturbCapacities()
   }
 }
 
+void GlobalRouter::perturbCapacitiesMorse()
+{
+  /*int x_grids = grid_->getXGrids();
+  int y_grids = grid_->getYGrids();
+
+  int num_2d_grids = x_grids * y_grids;
+  int num_perturbations = (caps_perturbation_percentage_ / 100) * num_2d_grids;
+
+  std::mt19937 g;
+  g.seed(seed_);
+
+  for (int layer = 1; layer <= getMaxRoutingLayer(); layer++) {
+    std::uniform_int_distribution<int> uni_x(1, std::max(x_grids - 1, 1));
+    std::uniform_int_distribution<int> uni_y(1, std::max(y_grids - 1, 1));
+    std::bernoulli_distribution add_or_subtract;
+
+    for (int i = 0; i < num_perturbations; i++) {
+      int x = uni_x(g);
+      int y = uni_y(g);
+      bool subtract = add_or_subtract(g);
+      int perturbation
+          = subtract ? -perturbation_amount_ : perturbation_amount_;
+      if (horizontal_capacities_[layer - 1] != 0) {
+        int new_cap
+            = grid_->getHorizontalEdgesCapacities()[layer - 1] + perturbation;
+        new_cap = new_cap < 0 ? 0 : new_cap;
+        grid_->setHorizontalCapacity(new_cap, layer - 1);
+        int edge_cap
+            = fastroute_->getEdgeCapacity(x - 1, y - 1, x, y - 1, layer);
+        int new_h_capacity = (edge_cap + perturbation);
+        new_h_capacity = new_h_capacity < 0 ? 0 : new_h_capacity;
+        fastroute_->addAdjustment(
+            x - 1, y - 1, x, y - 1, layer, new_h_capacity, subtract);
+      } else if (vertical_capacities_[layer - 1] != 0) {
+        int new_cap
+            = grid_->getVerticalEdgesCapacities()[layer - 1] + perturbation;
+        new_cap = new_cap < 0 ? 0 : new_cap;
+        grid_->setVerticalCapacity(new_cap, layer - 1);
+        int edge_cap
+            = fastroute_->getEdgeCapacity(x - 1, y - 1, x - 1, y, layer);
+        int new_v_capacity = (edge_cap + perturbation);
+        new_v_capacity = new_v_capacity < 0 ? 0 : new_v_capacity;
+        fastroute_->addAdjustment(
+            x - 1, y - 1, x - 1, y, layer, new_v_capacity, subtract);
+      }
+    }
+  }*/
+}
+
 void GlobalRouter::initGridAndNets()
 {
   if (db_->getChip() == nullptr) {
@@ -2014,6 +2298,17 @@ void GlobalRouter::configFastRoute()
         "Timing is not available, setting critical nets percentage to 0.");
     fastroute_->setCriticalNetsPercentage(0);
   }
+}
+void GlobalRouter::configMorseRoute()
+{
+   morseroute_->setVerbose(verbose_);
+  morseroute_->setOverflowIterations(congestion_iterations_);
+  morseroute_->setCongestionReportIterStep(congestion_report_iter_step_);
+
+  if (congestion_file_name_ != nullptr) {
+    morseroute_->setCongestionReportFile(congestion_file_name_);
+  }
+  
 }
 
 void GlobalRouter::getMinMaxLayer(int& min_layer, int& max_layer)
@@ -4349,7 +4644,7 @@ void GlobalRouter::reportLayerSettings(int min_routing_layer,
 
 void GlobalRouter::reportResources()
 {
-  fastroute_->computeCongestionInformation();
+  //TODO: add iwth morse fastroute_->computeCongestionInformation();
   std::vector<int> original_resources = fastroute_->getOriginalResources();
   std::vector<int> derated_resources = fastroute_->getTotalCapacityPerLayer();
 

@@ -88,7 +88,7 @@ class dbNetwork;
 
 namespace grt {
 
-class FastRouteCore;
+class MorseRoute;
 class RepairAntennas;
 class Grid;
 class Pin;
@@ -200,7 +200,7 @@ class GlobalRouter : public ant::GlobalRouteSource
   bool isConnected(odb::dbNet* net);
   bool segmentsConnect(const GSegment& segment1, const GSegment& segment2);
   bool isCoveringPin(Net* net, GSegment& segment);
-  std::vector<Net*> initFastRoute(int min_routing_layer, int max_routing_layer);
+  std::vector<Net*> initMorseRoute(int min_routing_layer, int max_routing_layer);
   void initFastRouteIncr(std::vector<Net*>& nets);
   void estimateRC(rsz::SpefWriter* spef_writer = nullptr);
   void estimateRC(odb::dbNet* db_net);
@@ -211,6 +211,7 @@ class GlobalRouter : public ant::GlobalRouteSource
                    bool start_incremental = false,
                    bool end_incremental = false);
   void saveCongestion();
+  void saveCongestionMorse();
   NetRouteMap& getRoutes() { return routes_; }
   Net* getNet(odb::dbNet* db_net);
   int getTileSize() const;
@@ -271,6 +272,7 @@ class GlobalRouter : public ant::GlobalRouteSource
   void setCapacitiesPerturbationPercentage(float percentage);
   void setPerturbationAmount(int perturbation);
   void perturbCapacities();
+  void perturbCapacitiesMorse();
 
   void initDebugFastRoute(std::unique_ptr<AbstractFastRouteRenderer> renderer);
   AbstractFastRouteRenderer* getDebugFastRoute() const;
@@ -320,7 +322,7 @@ class GlobalRouter : public ant::GlobalRouteSource
   AbstractGrouteRenderer* getRenderer();
 
   odb::dbDatabase* db() const { return db_; }
-  FastRouteCore* fastroute() const { return fastroute_; }
+  MorseRoute morseroute() const { return morseroute_; }
   Rudy* getRudy();
 
  private:
@@ -329,16 +331,21 @@ class GlobalRouter : public ant::GlobalRouteSource
   void removeNet(odb::dbNet* db_net);
 
   void applyAdjustments(int min_routing_layer, int max_routing_layer);
+  void applyAdjustmentsMorse(int min_routing_layer, int max_routing_layer);
   // main functions
   void initCoreGrid(int max_routing_layer);
+  void initCoreGridMorse(int max_routing_layer);
   void initRoutingLayers(int min_routing_layer, int max_routing_layer);
   void checkAdjacentLayersDirection(int min_routing_layer,
                                     int max_routing_layer);
   std::vector<std::pair<int, int>> calcLayerPitches(int max_layer);
   void initRoutingTracks(int max_routing_layer);
   void setCapacities(int min_routing_layer, int max_routing_layer);
+  void setCapacitiesMorse(int min_routing_layer, int max_routing_layer);
   void initNetlist(std::vector<Net*>& nets);
+  void initNetlistMorse(std::vector<Net*>& nets);
   bool makeFastrouteNet(Net* net);
+  bool makeMorserouteNet(Net* net);
   bool pinPositionsChanged(Net* net);
   bool newPinOnGrid(Net* net, std::multiset<RoutePt>& last_pos);
   std::vector<LayerId> findTransitionLayers();
@@ -373,6 +380,9 @@ class GlobalRouter : public ant::GlobalRouteSource
   int getNetMaxRoutingLayer(const Net* net);
   void findPins(Net* net);
   void findFastRoutePins(Net* net,
+                         std::vector<RoutePt>& pins_on_grid,
+                         int& root_idx);
+   void findMorseRoutePins(Net* net,
                          std::vector<RoutePt>& pins_on_grid,
                          int& root_idx);
   float getNetSlack(Net* net);
@@ -466,6 +476,7 @@ class GlobalRouter : public ant::GlobalRouteSource
   void initGridAndNets();
   void ensureLayerForGuideDimension(int max_routing_layer);
   void configFastRoute();
+  void configMorseRoute();
 
   utl::Logger* logger_;
   stt::SteinerTreeBuilder* stt_builder_;
@@ -473,7 +484,7 @@ class GlobalRouter : public ant::GlobalRouteSource
   dpl::Opendp* opendp_;
   rsz::Resizer* resizer_;
   // Objects variables
-  FastRouteCore* fastroute_;
+  MorseRoute* morseroute_;
   odb::Point grid_origin_;
   std::unique_ptr<AbstractGrouteRenderer> groute_renderer_;
   NetRouteMap routes_;
