@@ -4,10 +4,9 @@
 #include <cmath>
 #include <unordered_set>
 
-
 namespace grt {
-MorseRoute::MorseRoute(odb::dbDatabase* db):
-      db_(db),
+MorseRoute::MorseRoute(odb::dbDatabase* db)
+    : db_(db),
       max_degree_(0),
       overflow_iterations_(0),
       congestion_report_iter_step_(0),
@@ -39,7 +38,6 @@ MorseRoute::MorseRoute(odb::dbDatabase* db):
       regular_x_(false),
       regular_y_(false)
 {
-
 }
 
 void MorseRoute::clear()
@@ -225,7 +223,7 @@ void MorseRoute::setTileSize(int size)
 }
 
 void MorseRoute::addLayerDirection(int layer_idx,
-                                      const odb::dbTechLayerDir& direction)
+                                   const odb::dbTechLayerDir& direction)
 {
   layer_directions_[layer_idx] = direction;
 }
@@ -335,4 +333,42 @@ MorseNet* MorseRoute::addNet(odb::dbNet* db_net,
 
   return net;
 }
+void FastRouteCore::setVerbose(bool v)
+{
+  verbose_ = v;
 }
+
+void FastRouteCore::setCriticalNetsPercentage(float u)
+{
+  critical_nets_percentage_ = u;
+}
+
+/*void FastRouteCore::setMakeWireParasiticsBuilder(
+    AbstractMakeWireParasitics* builder)
+{
+  parasitics_builder_ = builder;
+}*/
+
+void FastRouteCore::setOverflowIterations(int iterations)
+{
+  overflow_iterations_ = iterations;
+}
+
+void FastRouteCore::setCongestionReportIterStep(int congestion_report_iter_step)
+{
+  congestion_report_iter_step_ = congestion_report_iter_step;
+}
+
+void FastRouteCore::setCongestionReportFile(const char* congestion_file_name)
+{
+  congestion_file_name_ = congestion_file_name;
+}
+
+void MorseNet::addPin(int x, int y, int layer)
+{
+  pin_x_.push_back(x);
+  pin_y_.push_back(y);
+  pin_l_.push_back(layer);
+}
+
+}  // namespace grt
