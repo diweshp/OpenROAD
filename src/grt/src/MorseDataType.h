@@ -55,7 +55,7 @@ enum class MorseRouteType
   MazeRoute
 };
 
-std::ostream& operator<<(std::ostream& os, RouteType type);
+std::ostream& operator<<(std::ostream& os, MorseRouteType type);
 
 enum class MorseDirection
 {
@@ -184,7 +184,7 @@ struct MorseTreeNode
 
 struct MorseRouteData
 {
-  RouteType type;  // type of route: LRoute, ZRoute, MazeRoute
+  MorseRouteType type;  // type of route: LRoute, ZRoute, MazeRoute
 
   // valid for LRoute:
   // true - the route is horizontal first (x1, y1) - (x2, y1) - (x2, y2),
@@ -224,8 +224,8 @@ struct MorseStTree
 {
   int num_terminals = 0;
   // The nodes (pin and Steiner nodes) in the tree.
-  std::vector<TreeNode> nodes;
-  std::vector<TreeEdge> edges;
+  std::vector<MorseTreeNode> nodes;
+  std::vector<MorseTreeEdge> edges;
 
   int num_edges() const { return edges.size(); }
   int num_nodes() const { return nodes.size(); }

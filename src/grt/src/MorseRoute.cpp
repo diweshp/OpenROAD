@@ -114,7 +114,7 @@ void MorseRoute::clearNets()
   db_net_id_map_.clear();
 }
 
-void FastRouteCore::clearNetRoute(odb::dbNet* db_net)
+void MorseRoute::clearNetRoute(odb::dbNet* db_net)
 {
   if (db_net_id_map_.find(db_net) != db_net_id_map_.end()) {
     const int net_id = db_net_id_map_[db_net];
@@ -122,17 +122,17 @@ void FastRouteCore::clearNetRoute(odb::dbNet* db_net)
   }
 }
 
-void FastRouteCore::getNetId(odb::dbNet* db_net, int& net_id, bool& exists)
+void MorseRoute::getNetId(odb::dbNet* db_net, int& net_id, bool& exists)
 {
   auto itr = db_net_id_map_.find(db_net);
   exists = itr != db_net_id_map_.end();
   net_id = exists ? itr->second : 0;
 }
 
-void FastRouteCore::clearNetRoute(const int netID)
+void MorseRoute::clearNetRoute(const int netID)
 {
   // clear used resources for the net route
-  releaseNetResources(netID);
+  //releaseNetResources(netID);
 
   // clear stree
   sttrees_[netID].nodes.clear();
@@ -333,12 +333,12 @@ MorseNet* MorseRoute::addNet(odb::dbNet* db_net,
 
   return net;
 }
-void FastRouteCore::setVerbose(bool v)
+void MorseRoute::setVerbose(bool v)
 {
   verbose_ = v;
 }
 
-void FastRouteCore::setCriticalNetsPercentage(float u)
+void MorseRoute::setCriticalNetsPercentage(float u)
 {
   critical_nets_percentage_ = u;
 }
@@ -349,17 +349,17 @@ void FastRouteCore::setCriticalNetsPercentage(float u)
   parasitics_builder_ = builder;
 }*/
 
-void FastRouteCore::setOverflowIterations(int iterations)
+void MorseRoute::setOverflowIterations(int iterations)
 {
   overflow_iterations_ = iterations;
 }
 
-void FastRouteCore::setCongestionReportIterStep(int congestion_report_iter_step)
+void MorseRoute::setCongestionReportIterStep(int congestion_report_iter_step)
 {
   congestion_report_iter_step_ = congestion_report_iter_step;
 }
 
-void FastRouteCore::setCongestionReportFile(const char* congestion_file_name)
+void MorseRoute::setCongestionReportFile(const char* congestion_file_name)
 {
   congestion_file_name_ = congestion_file_name;
 }

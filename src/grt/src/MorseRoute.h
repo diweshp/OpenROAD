@@ -158,7 +158,7 @@ class MorseRoute
   
 private:
   typedef std::tuple<int, int, int> Tile;
-odb::dbDatabase* _db;
+odb::dbDatabase* db_;
 int max_degree_;
 std::vector<MorseNet*> nets_;
   std::vector<int> cap_per_layer_;
