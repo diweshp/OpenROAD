@@ -54,6 +54,7 @@
 #include "AbstractGrouteRenderer.h"
 #include "AbstractRoutingCongestionDataSource.h"
 #include "MorseRoute.h"
+#include "MorseDataType.h"
 #include "Grid.h"
 #include "MakeWireParasitics.h"
 #include "RepairAntennas.h"

@@ -55,6 +55,7 @@ add_library(grt_lib
     src/RepairAntennas.cpp
     src/Rudy.cpp
     src/GlobalRouter.cpp
+    src/MorseRoute.cpp
 )
 
 target_sources(grt
