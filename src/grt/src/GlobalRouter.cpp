@@ -1326,8 +1326,8 @@ void GlobalRouter::initNetlistMorse(std::vector<Net*>& nets)
   if (verbose_) {
     min_degree = nets.empty() ? 0 : min_degree;
     max_degree = nets.empty() ? 0 : max_degree;
-    logger_->info(GRT, 1, "Minimum degree: {}", min_degree);
-    logger_->info(GRT, 2, "Maximum degree: {}", max_degree);
+    logger_->info(GRT, 1001, "Minimum degree: {}", min_degree);
+    logger_->info(GRT, 1002, "Maximum degree: {}", max_degree);
   }
 }
 
