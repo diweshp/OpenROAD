@@ -51,6 +51,20 @@
 #include "odb/geom.h"
 #include "stt/SteinerTreeBuilder.h"
 
+namespace odb {
+class dbDatabase;
+class dbTechLayerDir;
+class dbTechLayer;
+}  // namespace odb
+
+namespace stt {
+class SteinerTreeBuilder;
+}
+
+
+using boost::multi_array;
+using boost::icl::interval;
+using boost::icl::interval_set;
 namespace grt {
 
    struct MorseParent3D
