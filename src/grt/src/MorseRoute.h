@@ -36,6 +36,12 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <boost/functional/hash.hpp>
+#include <boost/icl/interval.hpp>
+#include <boost/icl/interval_set.hpp>
+#include <boost/multi_array.hpp>
+#include <set>
+#include <unordered_map>
 
 #include "grt/GRoute.h"
 #include "grt/RoutePt.h"
@@ -85,7 +91,6 @@ class MorseRoute
   void setLowerLeft(int x, int y);
   void setTileSize(int size);
   void addLayerDirection(int layer_idx, const odb::dbTechLayerDir& direction);
-  void setMaxNetDegree(int);
   void setVerbose(bool v);
   void setCriticalNetsPercentage(float u);
   float getCriticalNetsPercentage() { return critical_nets_percentage_; };
@@ -138,6 +143,7 @@ class MorseRoute
 
   
 private:
+  typedef std::tuple<int, int, int> Tile;
 odb::dbDatabase* _db;
 int max_degree_;
 std::vector<MorseNet*> nets_;
