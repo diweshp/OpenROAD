@@ -129,6 +129,12 @@ void MorseRoute::getNetId(odb::dbNet* db_net, int& net_id, bool& exists)
   net_id = exists ? itr->second : 0;
 }
 
+void MorseRoute::setGridMax(int x_max, int y_max)
+{
+  x_grid_max_ = x_max;
+  y_grid_max_ = y_max;
+}
+
 void MorseRoute::clearNetRoute(const int netID)
 {
   // clear used resources for the net route
@@ -369,6 +375,28 @@ void MorseNet::addPin(int x, int y, int layer)
   pin_x_.push_back(x);
   pin_y_.push_back(y);
   pin_l_.push_back(layer);
+}
+void MorseNet::reset(odb::dbNet* db_net,
+                  bool is_clock,
+                  int driver_idx,
+                  int edge_cost,
+                  int min_layer,
+                  int max_layer,
+                  float slack,
+                  std::vector<int>* edge_cost_per_layer)
+{
+  db_net_ = db_net;
+  is_critical_ = false;
+  is_clock_ = is_clock;
+  driver_idx_ = driver_idx;
+  edge_cost_ = edge_cost;
+  min_layer_ = min_layer;
+  max_layer_ = max_layer;
+  slack_ = slack;
+  edge_cost_per_layer_.reset(edge_cost_per_layer);
+  pin_x_.clear();
+  pin_y_.clear();
+  pin_l_.clear();
 }
 
 }  // namespace grt

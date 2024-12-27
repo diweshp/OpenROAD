@@ -168,6 +168,37 @@ GlobalRouter::~GlobalRouter()
   delete repair_antennas_;
 }
 
+std::vector<Net*> GlobalRouter::initFastRoute(int min_routing_layer,
+                                              int max_routing_layer)
+{
+  morseroute_->clear();
+  ensureLayerForGuideDimension(max_routing_layer);
+
+  configFastRoute();
+  // TODO: implement this
+
+  initRoutingLayers(min_routing_layer, max_routing_layer);
+  reportLayerSettings(min_routing_layer, max_routing_layer);
+  initRoutingTracks(max_routing_layer);
+  initCoreGrid(max_routing_layer);
+  // TODO: implement this
+  setCapacities(min_routing_layer, max_routing_layer);
+  // TODO: implement this
+
+  std::vector<Net*> nets = findNets();
+  checkPinPlacement();
+  initNetlist(nets);
+  // TODO: implement this
+
+  applyAdjustments(min_routing_layer, max_routing_layer);
+  // TODO: implement this
+  //applyAdjustmentsMorse(min_routing_layer, max_routing_layer);
+  perturbCapacities();
+  // TODO: implement this
+  initialized_ = true;
+  return nets;
+}
+
 std::vector<Net*> GlobalRouter::initMorseRoute(int min_routing_layer,
                                               int max_routing_layer)
 {
