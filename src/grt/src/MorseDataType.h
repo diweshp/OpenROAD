@@ -182,7 +182,7 @@ struct MorseTreeNode
   int stackAlias;
 };
 
-struct MorseRoute
+struct MorseRouteData
 {
   RouteType type;  // type of route: LRoute, ZRoute, MazeRoute
 
@@ -217,7 +217,7 @@ struct MorseTreeEdge
   int len;  // the Manhanttan Distance for two end nodes
   int n1, n1a;
   int n2, n2a;
-  MorseRoute route;
+  MorseRouteData route;
 };
 
 struct MorseStTree

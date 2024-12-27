@@ -47,19 +47,19 @@
 
 namespace grt {
 
-   struct parent3D
+   struct MorseParent3D
 {
   int16_t layer;
   int x, y;
 };
 
-struct CostParams
+struct MorseCostParams
 {
   const float logistic_coef;
   const float cost_height;
   const int slope;
 
-  CostParams(const float logistic_coef,
+  MorseCostParams(const float logistic_coef,
              const float cost_height,
              const int slope)
       : logistic_coef(logistic_coef), cost_height(cost_height), slope(slope)
@@ -77,14 +77,65 @@ class MorseRoute
   void setNumAdjustments(int nAdjustments);
   void setMaxNetDegree(int deg);
   void initEdges();
-  FrNet* addNet(odb::dbNet* db_net,
-                             bool is_clock,
-                             int driver_idx,
-                             int cost,
-                             int min_layer,
-                             int max_layer,
-                             float slack,
-                             std::vector<int>* edge_cost_per_layer)
+  void clear();
+  void clearNets();
+  void setGridsAndLayers(int x, int y, int nLayers);
+  void addVCapacity(short verticalCapacity, int layer);
+  void addHCapacity(short horizontalCapacity, int layer);
+  void setLowerLeft(int x, int y);
+  void setTileSize(int size);
+  void addLayerDirection(int layer_idx, const odb::dbTechLayerDir& direction);
+  void setMaxNetDegree(int);
+  void setVerbose(bool v);
+  void setCriticalNetsPercentage(float u);
+  float getCriticalNetsPercentage() { return critical_nets_percentage_; };
+  //void setMakeWireParasiticsBuilder(AbstractMakeWireParasitics* builder);
+  void setOverflowIterations(int iterations);
+  void setCongestionReportIterStep(int congestion_report_iter_step);
+  void setCongestionReportFile(const char* congestion_file_name);
+  void setGridMax(int x_max, int y_max);
+  void getCongestionNets(std::set<odb::dbNet*>& congestion_nets);
+  void computeCongestionInformation();
+  void setRegularX(bool regular_x) { regular_x_ = regular_x; }
+  void setRegularY(bool regular_y) { regular_y_ = regular_y; }
+  void incrementEdge3DUsage(int x1, int y1, int x2, int y2, int layer);
+  void setLastColVCapacity(short cap, int layer)
+  {
+    last_col_v_capacity_3D_[layer] = cap;
+  }
+  void setLastRowHCapacity(short cap, int layer)
+  {
+    last_row_h_capacity_3D_[layer] = cap;
+  }
+  const std::vector<int16_t>& getLastColumnVerticalCapacities()
+  {
+    return last_col_v_capacity_3D_;
+  }
+  const std::vector<int16_t>& getLastRowHorizontalCapacities()
+  {
+    return last_row_h_capacity_3D_;
+  }
+  const std::vector<short>& getVerticalCapacities() { return v_capacity_3D_; }
+  const std::vector<short>& getHorizontalCapacities() { return h_capacity_3D_; }
+  int getAvailableResources(int x1, int y1, int x2, int y2, int layer);
+  int getEdgeCapacity(int x1, int y1, int x2, int y2, int layer);
+  const multi_array<Edge3D, 3>& getHorizontalEdges3D() { return h_edges_3D_; }
+  const multi_array<Edge3D, 3>& getVerticalEdges3D() { return v_edges_3D_; }
+  void updateEdge2DAnd3DUsage(int x1,
+                              int y1,
+                              int x2,
+                              int y2,
+                              int layer,
+                              int used);
+  MorseNet* addNet(odb::dbNet* db_net,
+                bool is_clock,
+                int driver_idx,
+                int cost,
+                int min_layer,
+                int max_layer,
+                float slack,
+                std::vector<int>* edge_cost_per_layer);
+
   
 private:
 odb::dbDatabase* _db;
@@ -147,7 +198,7 @@ std::vector<MorseNet*> nets_;
   // Maze 3D variables
   multi_array<MorseDirection, 3> directions_3D_;
   multi_array<int, 3> corr_edge_3D_;
-  multi_array<parent3D, 3> pr_3D_;
+  multi_array<MorseParent3D, 3> pr_3D_;
   std::vector<bool> pop_heap2_3D_;
   std::vector<int*> src_heap_3D_;
   std::vector<int*> dest_heap_3D_;

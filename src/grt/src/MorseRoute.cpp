@@ -6,10 +6,114 @@
 
 
 namespace grt {
-MorseRoute::MorseRoute(odb::dbDatabase* db)
-_db(db)
+MorseRoute::MorseRoute(odb::dbDatabase* db):
+      db_(db),
+      max_degree_(0),
+      overflow_iterations_(0),
+      congestion_report_iter_step_(0),
+      x_range_(0),
+      y_range_(0),
+      num_adjust_(0),
+      v_capacity_(0),
+      h_capacity_(0),
+      x_grid_(0),
+      y_grid_(0),
+      x_grid_max_(0),
+      y_grid_max_(0),
+      x_corner_(0),
+      y_corner_(0),
+      tile_size_(0),
+      enlarge_(0),
+      costheight_(0),
+      ahth_(0),
+      num_layers_(0),
+      total_overflow_(0),
+      has_2D_overflow_(false),
+      grid_hv_(0),
+      verbose_(false),
+      critical_nets_percentage_(10),
+      via_cost_(0),
+      mazeedge_threshold_(0),
+      v_capacity_lb_(0),
+      h_capacity_lb_(0),
+      regular_x_(false),
+      regular_y_(false)
 {
 
+}
+
+void MorseRoute::clear()
+{
+  clearNets();
+
+  num_adjust_ = 0;
+  v_capacity_ = 0;
+  h_capacity_ = 0;
+  total_overflow_ = 0;
+  has_2D_overflow_ = false;
+
+  h_edges_.resize(boost::extents[0][0]);
+  v_edges_.resize(boost::extents[0][0]);
+  seglist_.clear();
+
+  gxs_.clear();
+  gys_.clear();
+  gs_.clear();
+
+  tree_order_pv_.clear();
+  tree_order_cong_.clear();
+
+  h_edges_3D_.resize(boost::extents[0][0][0]);
+  v_edges_3D_.resize(boost::extents[0][0][0]);
+
+  parent_x1_.resize(boost::extents[0][0]);
+  parent_y1_.resize(boost::extents[0][0]);
+  parent_x3_.resize(boost::extents[0][0]);
+  parent_y3_.resize(boost::extents[0][0]);
+
+  net_eo_.clear();
+
+  xcor_.clear();
+  ycor_.clear();
+  dcor_.clear();
+
+  hv_.resize(boost::extents[0][0]);
+  hyper_v_.resize(boost::extents[0][0]);
+  hyper_h_.resize(boost::extents[0][0]);
+  corr_edge_.resize(boost::extents[0][0]);
+
+  in_region_.resize(boost::extents[0][0]);
+
+  v_capacity_3D_.clear();
+  h_capacity_3D_.clear();
+
+  cost_hvh_.clear();
+  cost_vhv_.clear();
+  cost_h_.clear();
+  cost_v_.clear();
+  cost_lr_.clear();
+  cost_tb_.clear();
+  cost_hvh_test_.clear();
+  cost_v_test_.clear();
+  cost_tb_test_.clear();
+
+  vertical_blocked_intervals_.clear();
+  horizontal_blocked_intervals_.clear();
+}
+
+void MorseRoute::clearNets()
+{
+  if (!sttrees_.empty()) {
+    sttrees_.clear();
+  }
+
+  for (MorseNet* net : nets_) {
+    delete net;
+  }
+  nets_.clear();
+  net_ids_.clear();
+  seglist_.clear();
+  db_net_id_map_.clear();
 }
 
 void FastRouteCore::clearNetRoute(odb::dbNet* db_net)
