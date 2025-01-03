@@ -102,43 +102,6 @@ struct MorseDebugSetting
   //bool isOn() const { return renderer_ != nullptr; }
 };
 
-struct Morsepnt
-{
-  int x, y;
-  int o;
-};
-
-int Morseorderx(const Morsepnt* a, const Morsepnt* b)
-{
-  return a->x < b->x;
-}
-
-static int Morseordery(const Morsepnt* a, const Morsepnt* b)
-{
-  return a->y < b->y;
-}
-
-// binary search to map the new coordinates to original coordinates
-static int Morsemapxy(const int nx,
-                 const std::vector<int>& xs,
-                 const std::vector<int>& nxs,
-                 const int d)
-{
-  int min = 0;
-  int max = d - 1;
-
-  while (min <= max) {
-    const int mid = (min + max) / 2;
-    if (nx == nxs[mid])
-      return (xs[mid]);
-    if (nx < nxs[mid])
-      max = mid - 1;
-    else
-      min = mid + 1;
-  }
-
-  return -1;
-}
 
 class MorseRoute
 {
