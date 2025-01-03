@@ -102,24 +102,24 @@ struct MorseDebugSetting
   //bool isOn() const { return renderer_ != nullptr; }
 };
 
-struct pnt
+struct Morsepnt
 {
   int x, y;
   int o;
 };
 
-int orderx(const pnt* a, const pnt* b)
+int Morseorderx(const pnt* a, const pnt* b)
 {
   return a->x < b->x;
 }
 
-static int ordery(const pnt* a, const pnt* b)
+static int Morseordery(const pnt* a, const pnt* b)
 {
   return a->y < b->y;
 }
 
 // binary search to map the new coordinates to original coordinates
-static int mapxy(const int nx,
+static int Morsemapxy(const int nx,
                  const std::vector<int>& xs,
                  const std::vector<int>& nxs,
                  const int d)

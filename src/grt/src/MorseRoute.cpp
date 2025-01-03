@@ -719,8 +719,8 @@ void MorseRoute::fluteNormal(const int netID,
     std::vector<int> tmp_xs(d);
     std::vector<int> tmp_ys(d);
     std::vector<int> s(d);
-    pnt* pt = new pnt[d];
-    std::vector<pnt*> ptp(d);
+    Morsepnt* pt = new pnt[d];
+    std::vector<Morsepnt*> ptp(d);
 
     for (int i = 0; i < d; i++) {
       pt[i].x = x[i];
@@ -741,7 +741,7 @@ void MorseRoute::fluteNormal(const int netID,
         std::swap(ptp[i], ptp[minidx]);
       }
     } else {
-      std::stable_sort(ptp.begin(), ptp.end(), orderx);
+      std::stable_sort(ptp.begin(), ptp.end(), Morseorderx);
     }
 
     for (int i = 0; i < d; i++) {
@@ -767,7 +767,7 @@ void MorseRoute::fluteNormal(const int netID,
       ys[d - 1] = ptp[d - 1]->y;
       s[d - 1] = ptp[d - 1]->o;
     } else {
-      std::stable_sort(ptp.begin(), ptp.end(), ordery);
+      std::stable_sort(ptp.begin(), ptp.end(), Morseordery);
       for (int i = 0; i < d; i++) {
         ys[i] = ptp[i]->y;
         s[i] = ptp[i]->o;
@@ -940,8 +940,8 @@ void MorseRoute::fluteCongest(const int netID,
 
     // map the new coordinates back to original coordinates
     for (auto& branch : t.branch) {
-      branch.x = mapxy(branch.x, xs, nxs, d);
-      branch.y = mapxy(branch.y, ys, nys, d);
+      branch.x = Morsemapxy(branch.x, xs, nxs, d);
+      branch.y = Morsemapxy(branch.y, ys, nys, d);
     }
   }
 }
