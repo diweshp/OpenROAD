@@ -1006,7 +1006,7 @@ void MorseRoute::gen_brk_RSMT(const bool congestionDriven,
   for (const int& netID : net_ids_) {
     MorseNet* net = nets_[netID];
 
-    int d = net->getNumPins();
+    //int d = net->getNumPins();
 
 
     // check net alpha because FastRoute has a special implementation of flute
@@ -1084,7 +1084,7 @@ void MorseRoute::gen_brk_RSMT(const bool congestionDriven,
 
       if (x1 != x2 || y1 != y2) {  // the branch is not degraded (a point)
         // the position of this segment in seglist
-        seglist_[netID].push_back(Segment());
+        seglist_[netID].push_back(MorseSegment());
         auto& seg = seglist_[netID].back();
         if (x1 < x2) {
           seg.x1 = x1;
@@ -1113,7 +1113,7 @@ void MorseRoute::gen_brk_RSMT(const bool congestionDriven,
     }*/
   }  // loop i
 
-  debugPrint(logger_,
+  /*debugPrint(logger_,
              GRT,
              "rsmt",
              1,
@@ -1122,7 +1122,7 @@ void MorseRoute::gen_brk_RSMT(const bool congestionDriven,
              wl,
              wl1,
              totalNumSeg,
-             numShift);
+             numShift);*/
 }
 
 void MorseRoute::updateDbCongestion(int min_routing_layer,
