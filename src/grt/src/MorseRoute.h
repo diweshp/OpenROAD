@@ -87,10 +87,60 @@ struct MorseCostParams
   }
 };
 
+// Debug mode settings
+struct MorseDebugSetting
+{
+  const odb::dbNet* net_ = nullptr;
+  bool steinerTree_ = false;
+  bool rectilinearSTree_ = false;
+  bool tree2D_ = false;
+  bool tree3D_ = false;
+  std::unique_ptr<AbstractFastRouteRenderer> renderer_;
+  std::string sttInputFileName_;
+
+  bool isOn() const { return renderer_ != nullptr; }
+};
+
 class MorseRoute
 {
  public:
   MorseRoute(odb::dbDatabase* db);
+  NetRouteMap run();
+  NetRouteMap getRoutes();
+  int getOverflow2D(int* maxOverflow);
+  bool netCongestion(const int netID);
+  void InitEstUsage();
+  int getEdgeCapacity(int x1, int y1, int x2, int y2, int layer);
+  int totalOverflow() const { return total_overflow_; }
+  bool has2Doverflow() const { return has_2D_overflow_; }
+  void updateDbCongestion(int min_routing_layer,
+                                       int max_routing_layer);
+  void fluteCongest(const int netID,
+                                 const std::vector<int>& x,
+                                 const std::vector<int>& y,
+                                 const int acc,
+                                 const float coeffV,
+                                 Tree& t);
+  void fluteNormal(const int netID,
+                                const std::vector<int>& x,
+                                const std::vector<int>& y,
+                                const int acc,
+                                const float coeffV,
+                                Tree& t);
+  int getEdgeCapacity(MorseNet* net,
+                                   int x1,
+                                   int y1,
+                                   MorseEdgeDirection direction);
+  int getAvailableResources(int x1,
+                                         int y1,
+                                         int x2,
+                                         int y2,
+                                         int layer);
+  void gen_brk_RSMT(const bool congestionDriven,
+                                 const bool reRoute,
+                                 const bool genTree,
+                                 const bool newType,
+                                 const bool noADJ);
   int x_corner() const { return x_corner_; }
   int y_corner() const { return y_corner_; }
   int tile_size() const { return tile_size_; }
@@ -265,7 +315,7 @@ std::vector<MorseNet*> nets_;
   stt::SteinerTreeBuilder* stt_builder_;
   //AbstractMakeWireParasitics* parasitics_builder_;
 
-  //std::unique_ptr<DebugSetting> debug_;
+  std::unique_ptr<MorseDebugSetting> debug_;
 
   std::unordered_map<Tile, interval_set<int>, boost::hash<Tile>>
       vertical_blocked_intervals_;

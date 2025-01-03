@@ -444,6 +444,7 @@ class GlobalRouter : public ant::GlobalRouteSource
   void removeRectUsage(const odb::Rect& rect, odb::dbTechLayer* tech_layer);
   bool isDetailedRouted(odb::dbNet* db_net);
   void updateDbCongestion();
+  void updateDbCongestionMorse();
 
   // db functions
   void initGrid(int max_layer);

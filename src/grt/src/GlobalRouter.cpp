@@ -171,7 +171,7 @@ GlobalRouter::~GlobalRouter()
 std::vector<Net*> GlobalRouter::initFastRoute(int min_routing_layer,
                                               int max_routing_layer)
 {
-  morseroute_->clear();
+  fastroute_->clear();
   ensureLayerForGuideDimension(max_routing_layer);
 
   configFastRoute();
@@ -202,7 +202,7 @@ std::vector<Net*> GlobalRouter::initFastRoute(int min_routing_layer,
 std::vector<Net*> GlobalRouter::initMorseRoute(int min_routing_layer,
                                               int max_routing_layer)
 {
-  morseroute_->clear();
+  morseroute_->clear(); 
   ensureLayerForGuideDimension(max_routing_layer);
 
   //configFastRoute();
@@ -287,8 +287,8 @@ void GlobalRouter::saveCongestion()
 
 void GlobalRouter::saveCongestionMorse()
 {
-  /*is_congested_ = fastroute_->totalOverflow() > 0;
-  fastroute_->saveCongestion();*/
+  is_congested_ = morseroute_->totalOverflow() > 0;
+  //fastroute_->saveCongestion();
 }
 
 bool GlobalRouter::haveRoutes()
@@ -410,10 +410,11 @@ void GlobalRouter::globalRoute(bool save_guides,
         }
 
         //routes_ = findRouting(nets, min_layer, max_layer);
-        //routes_ = findRouting(nets, min_layer, max_layer);
+        routes_ = findRoutingMorse(nets, min_layer, max_layer);
       }
     } catch (...) {
-      updateDbCongestion();
+      //updateDbCongestion();
+      updateDbCongestionMorse();
       //saveCongestion();
       // TODO: implement this
       saveCongestionMorse();
@@ -426,14 +427,14 @@ void GlobalRouter::globalRoute(bool save_guides,
       saveCongestionMorse();
 
     if (verbose_) {
-      reportCongestion();
+      //reportCongestion();
     }
-    computeWirelength();
+    //computeWirelength();
     if (verbose_) {
       logger_->info(GRT, 14, "Routed nets: {}", routes_.size());
     }
     if (save_guides) {
-      saveGuides();
+      //saveGuides();
     }
   }
 
@@ -454,10 +455,18 @@ void GlobalRouter::globalRoute(bool save_guides,
 
 void GlobalRouter::updateDbCongestion()
 {
-  /*int min_layer, max_layer;
+  int min_layer, max_layer;
   getMinMaxLayer(min_layer, max_layer);
   fastroute_->updateDbCongestion(min_layer, max_layer);
-  heatmap_->update();*/
+  heatmap_->update();
+}
+
+void GlobalRouter::updateDbCongestionMorse()
+{
+  int min_layer, max_layer;
+  getMinMaxLayer(min_layer, max_layer);
+  morseroute_->updateDbCongestion(min_layer, max_layer);
+  heatmap_->update();
 }
 
 int GlobalRouter::repairAntennas(odb::dbMTerm* diode_mterm,
@@ -589,6 +598,29 @@ NetRouteMap GlobalRouter::findRouting(std::vector<Net*>& nets,
     fastroute_->setMakeWireParasiticsBuilder(nullptr);
     addRemainingGuides(routes, nets, min_routing_layer, max_routing_layer);
     connectPadPins(routes);
+    for (auto& net_route : routes) {
+      std::vector<Pin>& pins = db_net_map_[net_route.first]->getPins();
+      GRoute& route = net_route.second;
+      mergeSegments(pins, route);
+    }
+  }
+
+  return routes;
+}
+
+NetRouteMap GlobalRouter::findRoutingMorse(std::vector<Net*>& nets,
+                                      int min_routing_layer,
+                                      int max_routing_layer)
+{
+  NetRouteMap routes;
+  if (!nets.empty()) {
+    MakeWireParasitics builder(
+        logger_, resizer_, sta_, db_->getTech(), block_, this);
+    //fastroute_->setMakeWireParasiticsBuilder(&builder);
+    routes = morseroute_->run();
+    //fastroute_->setMakeWireParasiticsBuilder(nullptr);
+    //addRemainingGuides(routes, nets, min_routing_layer, max_routing_layer);
+    //connectPadPins(routes);
     for (auto& net_route : routes) {
       std::vector<Pin>& pins = db_net_map_[net_route.first]->getPins();
       GRoute& route = net_route.second;
