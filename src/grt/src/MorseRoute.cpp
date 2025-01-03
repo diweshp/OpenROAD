@@ -5,6 +5,8 @@
 #include <unordered_set>
 
 namespace grt {
+   using utl::GRT;
+   
 MorseRoute::MorseRoute(odb::dbDatabase* db)
     : db_(db),
       max_degree_(0),
@@ -588,10 +590,7 @@ int MorseRoute::getAvailableResources(int x1,
   } else if (x1 == x2) {  // vertical edge
     available_cap = v_edges_3D_[k][y1][x1].cap - v_edges_3D_[k][y1][x1].usage;
   } else {
-    /*logger_->error(
-        GRT,
-        213,
-        "Cannot get available resources: edge is not vertical or horizontal.");*/
+    
   }
   return available_cap;
 }
@@ -605,10 +604,6 @@ int MorseRoute::getEdgeCapacity(int x1, int y1, int x2, int y2, int layer)
   } else if (x1 == x2) {  // vertical edge
     return v_edges_3D_[k][y1][x1].cap;
   } else {
-    /*logger_->error(
-        GRT,
-        214,
-        "Cannot get edge capacity: edge is not vertical or horizontal.");*/
     return 0;
   }
 }
