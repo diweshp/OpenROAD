@@ -72,6 +72,7 @@ namespace grt {
   int16_t layer;
   int x, y;
 };
+using stt::Tree;
 
 struct MorseCostParams
 {
@@ -95,11 +96,49 @@ struct MorseDebugSetting
   bool rectilinearSTree_ = false;
   bool tree2D_ = false;
   bool tree3D_ = false;
-  std::unique_ptr<AbstractFastRouteRenderer> renderer_;
+  //std::unique_ptr<AbstractFastRouteRenderer> renderer_;
   std::string sttInputFileName_;
 
-  bool isOn() const { return renderer_ != nullptr; }
+  //bool isOn() const { return renderer_ != nullptr; }
 };
+
+struct pnt
+{
+  int x, y;
+  int o;
+};
+
+int orderx(const pnt* a, const pnt* b)
+{
+  return a->x < b->x;
+}
+
+static int ordery(const pnt* a, const pnt* b)
+{
+  return a->y < b->y;
+}
+
+// binary search to map the new coordinates to original coordinates
+static int mapxy(const int nx,
+                 const std::vector<int>& xs,
+                 const std::vector<int>& nxs,
+                 const int d)
+{
+  int min = 0;
+  int max = d - 1;
+
+  while (min <= max) {
+    const int mid = (min + max) / 2;
+    if (nx == nxs[mid])
+      return (xs[mid]);
+    if (nx < nxs[mid])
+      max = mid - 1;
+    else
+      min = mid + 1;
+  }
+
+  return -1;
+}
 
 class MorseRoute
 {
@@ -107,6 +146,7 @@ class MorseRoute
   MorseRoute(odb::dbDatabase* db);
   NetRouteMap run();
   NetRouteMap getRoutes();
+  int netCount() const { return nets_.size(); }
   int getOverflow2D(int* maxOverflow);
   bool netCongestion(const int netID);
   void InitEstUsage();
@@ -186,8 +226,6 @@ class MorseRoute
   }
   const std::vector<short>& getVerticalCapacities() { return v_capacity_3D_; }
   const std::vector<short>& getHorizontalCapacities() { return h_capacity_3D_; }
-  int getAvailableResources(int x1, int y1, int x2, int y2, int layer);
-  int getEdgeCapacity(int x1, int y1, int x2, int y2, int layer);
   const multi_array<MorseEdge3D, 3>& getHorizontalEdges3D() { return h_edges_3D_; }
   const multi_array<MorseEdge3D, 3>& getVerticalEdges3D() { return v_edges_3D_; }
   void clearNetRoute(odb::dbNet* db_net);
@@ -212,6 +250,8 @@ class MorseRoute
   
 private:
   typedef std::tuple<int, int, int> Tile;
+  static const int BIG_INT = 1e9;  // big integer used as infinity
+  static const int HCOST = 5000;
 odb::dbDatabase* db_;
 int max_degree_;
 std::vector<MorseNet*> nets_;

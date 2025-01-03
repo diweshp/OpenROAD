@@ -408,6 +408,9 @@ class GlobalRouter : public ant::GlobalRouteSource
   void mergeSegments(const std::vector<Pin>& pins, GRoute& route);
   bool pinOverlapsWithSingleTrack(const Pin& pin, odb::Point& track_position);
   odb::Point getRectMiddle(const odb::Rect& rect);
+  NetRouteMap findRoutingMorse(std::vector<Net*>& nets,
+                          int min_routing_layer,
+                          int max_routing_layer);
   NetRouteMap findRouting(std::vector<Net*>& nets,
                           int min_routing_layer,
                           int max_routing_layer);

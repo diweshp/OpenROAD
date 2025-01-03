@@ -501,7 +501,7 @@ int MorseRoute::getOverflow2D(int* maxOverflow)
     ahth_ = 20;
   }
 
-  if (logger_->debugCheck(GRT, "checkRoute3D", 1)) {
+  //if (logger_->debugCheck(GRT, "checkRoute3D", 1)) {
     logger_->report("Overflow report.");
     logger_->report("Total hCap               : {}", hCap);
     logger_->report("Total vCap               : {}", vCap);
@@ -513,7 +513,7 @@ int MorseRoute::getOverflow2D(int* maxOverflow)
     logger_->report("H   overflow             : {}", H_overflow);
     logger_->report("V   overflow             : {}", V_overflow);
     logger_->report("Final overflow           : {}\n", total_overflow_);
-  }
+  //}
 
   return total_overflow_;
 }
@@ -542,16 +542,12 @@ NetRouteMap MorseRoute::run()
   v_used_ggrid_.clear();
   h_used_ggrid_.clear();
 
-  int tUsage;
-  int cost_step;
   int maxOverflow = 0;
-  int minoflrnd = 0;
-  int bwcnt = 0;
 
   // Init grid variables when debug mode is actived
-  if (debug_->isOn()) {
+  //if (debug_->isOn()) {
     //fastrouteRender()->setGridVariables(tile_size_, x_corner_, y_corner_);
-  }
+  //}
 
   // TODO: check this size
   int max_degree2 = 2 * max_degree_;
@@ -560,29 +556,9 @@ NetRouteMap MorseRoute::run()
   dcor_.resize(max_degree2);
   net_eo_.reserve(max_degree2);
 
-  int THRESH_M = 20;
-  const int ENLARGE = 15;  // 5
-  const int ESTEP1 = 10;   // 10
-  const int ESTEP2 = 5;    // 5
-  const int ESTEP3 = 5;    // 5
-  int CSTEP1 = 2;          // 5
-  const int CSTEP2 = 2;    // 3
-  const int CSTEP3 = 5;    // 15
-  const int COSHEIGHT = 4;
-  int L = 0;
-  int VIA = 2;
-  const int Ripvalue = -1;
-  const bool goingLV = true;
+  
   const bool noADJ = false;
-  const int thStep1 = 10;
-  const int thStep2 = 4;
-  const int LVIter = 3;
-  const int mazeRound = 500;
-  int bmfl = BIG_INT;
-  int minofl = BIG_INT;
-  float logistic_coef = 0;
-  int slope;
-  int max_adj;
+ 
 
   // call FLUTE to generate RSMT and break the nets into segments (2-pin nets)
 
@@ -595,6 +571,7 @@ NetRouteMap MorseRoute::run()
   //  past_cong = getOverflow2Dmaze( &maxOverflow);
 
   InitEstUsage();
+  NetRouteMap routes;
 
   return routes;
 }
@@ -611,10 +588,10 @@ int MorseRoute::getAvailableResources(int x1,
   } else if (x1 == x2) {  // vertical edge
     available_cap = v_edges_3D_[k][y1][x1].cap - v_edges_3D_[k][y1][x1].usage;
   } else {
-    logger_->error(
+    /*logger_->error(
         GRT,
         213,
-        "Cannot get available resources: edge is not vertical or horizontal.");
+        "Cannot get available resources: edge is not vertical or horizontal.");*/
   }
   return available_cap;
 }
@@ -628,10 +605,10 @@ int MorseRoute::getEdgeCapacity(int x1, int y1, int x2, int y2, int layer)
   } else if (x1 == x2) {  // vertical edge
     return v_edges_3D_[k][y1][x1].cap;
   } else {
-    logger_->error(
+    /*logger_->error(
         GRT,
         214,
-        "Cannot get edge capacity: edge is not vertical or horizontal.");
+        "Cannot get edge capacity: edge is not vertical or horizontal.");*/
     return 0;
   }
 }
