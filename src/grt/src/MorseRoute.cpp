@@ -719,7 +719,7 @@ void MorseRoute::fluteNormal(const int netID,
     std::vector<int> tmp_xs(d);
     std::vector<int> tmp_ys(d);
     std::vector<int> s(d);
-    Morsepnt* pt = new pnt[d];
+    Morsepnt* pt = new Morsepnt[d];
     std::vector<Morsepnt*> ptp(d);
 
     for (int i = 0; i < d; i++) {

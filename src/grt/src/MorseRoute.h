@@ -108,12 +108,12 @@ struct Morsepnt
   int o;
 };
 
-int Morseorderx(const pnt* a, const pnt* b)
+int Morseorderx(const Morsepnt* a, const Morsepnt* b)
 {
   return a->x < b->x;
 }
 
-static int Morseordery(const pnt* a, const pnt* b)
+static int Morseordery(const Morsepnt* a, const Morsepnt* b)
 {
   return a->y < b->y;
 }
